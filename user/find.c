@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
     if (argc == 1)
     {
-        printf("usage: find [path] [target]");
+        printf("usage: find [path] [target]\n");
         exit(0);
     }
     if (argc == 2)

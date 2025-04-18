@@ -107,4 +107,6 @@ struct proc {
   int alarmticks;             // ticks until alarm
   uint64 alarmhandler;     // function to call when alarm goes off
   int alarmtickscount;
+  struct trapframe *alarmtrapframe;
+  int alarmflag; // flag to indicate if alarm is set
 };

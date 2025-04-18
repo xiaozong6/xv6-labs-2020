@@ -80,10 +80,18 @@ usertrap(void)
   if(which_dev == 2)
 
   {
-    if(p->alarmticks!=0)
+    if(p->alarmflag ==0 && p->alarmticks!=0)
     {
-      p->trapframe->epc = p->alarmhandler;
-    }
+      p->alarmtickscount++;
+      if(p->alarmtickscount >= p->alarmticks)
+      {
+        p->alarmtickscount = 0;  
+        *p->alarmtrapframe = *p->trapframe;
+        p->trapframe->epc = p->alarmhandler;
+        p->alarmflag = 1;
+      }      
+    } 
+
     yield();
   }
     

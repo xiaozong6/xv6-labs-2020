@@ -694,3 +694,32 @@ procdump(void)
     printf("\n");
   }
 }
+
+int
+uvmcheckcowpage(uint64 va)
+{
+  pte_t *pte;
+  struct proc *p = myproc();
+  return va < p->sz && (pte = walk(p->pagetable, va, 0)) != 0 && (*pte & PTE_V) && (*pte & PTE_COW) != 0;
+}
+
+int
+uvmcowcopy(uint64 va)
+{
+  pte_t *pte;
+  struct proc *p = myproc();
+
+  if ((pte = walk(p->pagetable, va, 0)) == 0)
+    panic("uvmcowcopy: walk");
+  
+  uint64 pa = PTE2PA(*pte);
+  uint64 newpa = (uint64)kcopy_n_deref((void*)pa);
+  if (newpa == 0)
+    return -1;
+
+  uint64 flags = (PTE_FLAGS(*pte) | PTE_W) & ~PTE_COW;
+  uvmunmap(p->pagetable, PGROUNDDOWN(va), 1, 0);
+  if(mappages(p->pagetable, va, 1, newpa, flags) == -1)
+    panic("uvmcowcopy: mappages");
+  return 0;
+}

@@ -459,15 +459,15 @@ itrunc(struct inode *ip)
   if(ip->addrs[NDIRECT+1]){
     bp = bread(ip->dev, ip->addrs[NDIRECT+1]);
     a = (uint*)bp->data;
-    for(j = 0; j < NINDIRECT; j++){
-      if(a[j]){
-        bp = bread(ip->dev, a[j]);
-        uint *a2 = (uint*)bp->data;
-        for(i = 0; i < NINDIRECT; i++)
-          if(a2[i])
-            bfree(ip->dev, a2[i]);
-        brelse(bp);
-        bfree(ip->dev, a[j]);
+    for(int i = 0; i < NINDIRECT; i++){
+      if(a[i]){
+        struct buf* bp2 = bread(ip->dev, a[i]);
+        uint *a2 = (uint*)bp2->data;
+        for(int j  = 0; j < NINDIRECT; j++)
+          if(a2[j])
+            bfree(ip->dev, a2[j]);
+        brelse(bp2);
+        bfree(ip->dev, a[i]);
       }
     }
     brelse(bp);
